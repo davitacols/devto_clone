@@ -28,7 +28,34 @@ class Comment(models.Model):
     content = models.TextField()
     post = models.ForeignKey(BlogPost, on_delete=models.CASCADE, related_name='comments')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'Comment by {self.author} on {self.post}'
+
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    social_links = models.JSONField(blank=True, null=True)  # Store links in JSON format
+
+    def __str__(self):
+        return self.user.username
+    
+class PostInteraction(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    post = models.ForeignKey(BlogPost, on_delete=models.CASCADE)
+    liked = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'post')
+
+class Notification(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Notification for {self.user}'
