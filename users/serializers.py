@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
+from .models import Follow
 
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
@@ -12,6 +13,11 @@ class UserLoginSerializer(serializers.Serializer):
         if user is None:
             raise serializers.ValidationError('Invalid username or password.')
         return user
+
+class FollowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follow
+        fields = ['following']
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
