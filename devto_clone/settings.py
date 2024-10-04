@@ -12,7 +12,11 @@ SECRET_KEY = 'django-insecure-$307t^%80=&1fu^te&zm0pa#614$^=lggr$mpr!j@$#$&b0nk^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Replace with your frontend URL
+]
+
+
 
 # Application definition
 INSTALLED_APPS = [
@@ -30,7 +34,7 @@ INSTALLED_APPS = [
     'users',
 ]
 
-AUTH_USER_MODEL = 'users.CustomUser'
+# AUTH_USER_MODEL = 'users.CustomUser'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

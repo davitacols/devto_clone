@@ -1,49 +1,35 @@
-from django.contrib.auth.models import User
 from rest_framework import serializers
-from django.contrib.auth import authenticate
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import User
 from .models import Follow
 
-class UserLoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(required=True)
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    followers_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
 
-    def validate(self, attrs):
-        user = authenticate(**attrs)
-        if user is None:
-            raise serializers.ValidationError('Invalid username or password.')
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'password', 'followers_count', 'following_count')
+    
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
+        )
         return user
+    
+    def get_followers_count(self, obj):
+        return obj.followers.count()
+    
+    def get_following_count(self, obj):
+        return obj.following.count()
+
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
 
 class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Follow
-        fields = ['following']
-
-
-class UserRegistrationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'email': {'required': True, 'allow_blank': False},
-        }
-
-    def validate_email(self, value):
-        """Ensure email is unique"""
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError("This email is already in use.")
-        return value
-
-    def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
-        return user
-
-
-class UserProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'profile_picture']
-        extra_kwargs = {
-            'profile_picture': {'required': False},
-        }
+        fields = ('follower', 'following', 'created_at')

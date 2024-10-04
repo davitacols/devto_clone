@@ -1,10 +1,13 @@
 from django.urls import path
-from .views import BlogPostListCreate, BlogPostDetail, CommentListCreate, profile_view, like_post
+from . import views
+
+app_name = 'blog'
 
 urlpatterns = [
-    path('posts/', BlogPostListCreate.as_view(), name='post-list-create'),
-    path('posts/<int:pk>/', BlogPostDetail.as_view(), name='post-detail'),
-    path('comments/', CommentListCreate.as_view(), name='comment-list-create'),
-    path('profile/<str:username>/', profile_view, name='profile_view'),
-    path('post/<int:post_id>/like/', like_post, name='like_post'),
+    path('profile/<str:username>/', views.profile_view, name='profile'),
+    path('post/<int:post_id>/like/', views.like_post, name='like_post'),
+    path('post/<int:post_id>/bookmark/', views.bookmark_post, name='bookmark_post'),
+    path('posts/', views.BlogPostListCreate.as_view(), name='post_list_create'),
+    path('posts/<int:pk>/', views.BlogPostDetail.as_view(), name='post_detail'),
+    path('posts/<int:post_id>/comments/', views.CommentListCreate.as_view(), name='comment_list_create'),
 ]
